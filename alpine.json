@@ -1,0 +1,143 @@
+{
+  "variables": {
+    "iso_dir": "file://{{env `HOME`}}/Downloads",
+    "iso_checksum_value": "57f6faf5e065e4063cb8bf61b42566d89e50e81f0ff850f1aa33a7558194a316",
+    "product_name": "alpine",
+    "product_version": "3.2.3",
+    "headless": "",
+    "disk_size": "512",
+    "ssh_password": "alpine",
+    "ssh_wait_timeout": "5m",
+    "shutdown_command": "poweroff"
+  },
+  "builders": [
+    {
+      "vm_name": "{{user `product_name`}}-{{user `product_version`}}-x86_64",
+      "vmdk_name": "{{user `product_name`}}-{{user `product_version`}}-x86_64",
+      "type": "vmware-iso",
+      "headless": "{{user `headless`}}",
+      "disk_size": "{{user `disk_size`}}",
+      "disk_type_id": 0,
+      "guest_os_type": "other3xlinux-64",
+      "iso_url": "{{user `iso_dir`}}/alpine-{{user `product_version`}}-x86_64.iso",
+      "iso_checksum": "{{user `iso_checksum_value`}}",
+      "iso_checksum_type": "sha256",
+      "ssh_username": "root",
+      "ssh_password": "{{user `ssh_password`}}",
+      "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+      "shutdown_command": "{{user `shutdown_command`}}",
+      "http_directory": "http/alpine",
+      "output_directory": "builds/alpine-vmware",
+      "vmx_data": {
+        "cpuid.coresPerSocket": "1",
+        "memsize": "512",
+        "numvcpus": "1",
+        "virtualhw.version": "8",
+        "ethernet0.present": "TRUE",
+        "ethernet0.startConnected": "TRUE",
+        "ethernet0.virtualDev": "vmxnet3",
+        "ethernet0.connectionType": "nat"
+      },
+      "boot_command": [
+        "root<enter><wait>",
+        "ifconfig eth0 up && udhcpc -i eth0<enter><wait5>",
+        "wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/answers<enter><wait>",
+        "nc -lp 22&<enter>",
+        "setup-alpine -f answers<enter><wait10>",
+        "alpine<enter><wait>",
+        "alpine<enter><wait10>",
+        "<wait10><wait10><wait10>",
+        "y<enter>",
+        "<wait10><wait10><wait10>",
+        "killall -9 nc<enter>",
+        "/etc/init.d/sshd stop<enter><wait>",
+        "eject -r<enter>",
+        "reboot<enter>"
+      ]
+    },
+    {
+      "vm_name": "{{user `product_name`}}-{{user `product_version`}}-x86_64",
+      "type": "parallels-iso",
+      "disk_size": "{{user `disk_size`}}",
+      "guest_os_type": "linux-2.6",
+      "iso_url": "{{user `iso_dir`}}/alpine-{{user `product_version`}}-x86_64.iso",
+      "iso_checksum": "{{user `iso_checksum_value`}}",
+      "iso_checksum_type": "sha256",
+      "ssh_username": "root",
+      "ssh_password": "{{user `ssh_password`}}",
+      "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+      "shutdown_command": "{{user `shutdown_command`}}",
+      "http_directory": "http/alpine",
+      "output_directory": "builds/alpine-parallels",
+      "prlctl": [
+        [ "set", "{{.Name}}", "--memsize", "512" ],
+        [ "set", "{{.Name}}", "--cpus", "1" ]
+      ],
+      "parallels_tools_flavor": "lin",
+      "parallels_tools_mode": "attach",
+      "boot_wait": "30s",
+      "boot_command": [
+        "root<enter><wait>",
+        "ifconfig eth0 up && udhcpc -i eth0<enter><wait5>",
+        "wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/answers<enter><wait>",
+        "nc -lp 22&<enter>",
+        "setup-alpine -f answers<enter><wait10>",
+        "alpine<enter><wait>",
+        "alpine<enter><wait10>",
+        "<wait10><wait10><wait10>",
+        "y<enter>",
+        "<wait10><wait10><wait10>",
+        "killall -9 nc<enter>",
+        "/etc/init.d/sshd stop<enter><wait>",
+        "eject -r<enter>",
+        "reboot<enter>"
+      ]
+    },
+    {
+      "vm_name": "{{user `product_name`}}-{{user `product_version`}}-x86_64",
+      "type": "virtualbox-iso",
+      "headless": "{{user `headless`}}",
+      "disk_size": "{{user `disk_size`}}",
+      "guest_os_type": "Linux26_64",
+      "guest_additions_mode": "attach",
+      "iso_url": "{{user `iso_dir`}}/alpine-{{user `product_version`}}-x86_64.iso",
+      "iso_checksum": "{{user `iso_checksum_value`}}",
+      "iso_checksum_type": "sha256",
+      "ssh_username": "root",
+      "ssh_password": "{{user `ssh_password`}}",
+      "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+      "shutdown_command": "{{user `shutdown_command`}}",
+      "http_directory": "http/alpine",
+      "output_directory": "builds/alpine-virtualbox",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "512"],
+        ["modifyvm", "{{.Name}}", "--cpus", "1"]
+      ],
+      "boot_wait": "30s",
+      "boot_command": [
+        "root<enter><wait>",
+        "ifconfig eth0 up && udhcpc -i eth0<enter><wait5>",
+        "wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/answers<enter><wait>",
+        "nc -lp 22&<enter>",
+        "setup-alpine -f answers<enter><wait10>",
+        "alpine<enter><wait>",
+        "alpine<enter><wait10>",
+        "<wait10><wait10><wait10>",
+        "y<enter>",
+        "<wait10><wait10><wait10>",
+        "killall -9 nc<enter>",
+        "/etc/init.d/sshd stop<enter><wait>",
+        "eject -r<enter>",
+        "reboot<enter>"
+      ]
+    }
+
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "{{.Vars}} /bin/sh -x '{{.Path}}'",
+      "script": "scripts/alpine/provisioning.sh"
+    }
+  ]
+}

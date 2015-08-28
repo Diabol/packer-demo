@@ -1,0 +1,15 @@
+KEYMAPOPTS="us us"
+HOSTNAMEOPTS="-n localhost"
+INTERFACESOPTS="auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+"
+DNSOPTS="-n 8.8.8.8"
+TIMEZONEOPTS="-z UTC"
+PROXYOPTS="none"
+APKREPOSOPTS="http://nl.alpinelinux.org/alpine/v3.2/main"
+SSHDOPTS="-c openssh"
+NTPOPTS="-c none"
+DISKOPTS="-m sys /dev/sda"
