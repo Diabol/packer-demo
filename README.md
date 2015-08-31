@@ -15,5 +15,8 @@ Examples
 - CentOS Vagrant box for VirtualBox/VMware Fusion & Workstation/Parallels Desktop
 Build with: ```packer build -only=virtualbox-iso centos-vagrant.json```
 
-- Install Puppet on CentOS image on AWS EC2, Digital Ocean Droplet
-Build with: ```packer build centos-puppet.json```
+- Alpine VM image for VirtualBox/VMware Fusion & Workstation/Parallels Desktop
+Build with: ```packer build -only=virtualbox-iso apline.json```
+
+- Install Puppet on CentOS image on AWS EC2, Digital Ocean Droplet, and Open Stack
+Build with: ```packer build -only=digitalocean cloud.json```
