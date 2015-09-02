@@ -1,0 +1,48 @@
+{
+  "variables": {
+    "di_image": "centos-7-0-x64",
+    "di_region": "ams3",
+    "di_size": "512mb",
+    "aws_source_ami": "ami-25acd752"
+  },
+  "builders": [
+    {
+      "type": "digitalocean",
+      "ssh_pty": "true",
+      "image": "{{user `di_image`}}",
+      "region": "{{user `di_region`}}",
+      "size": "{{user `di_size`}}"
+    },
+    {
+      "type": "openstack",
+      "endpoint_type": "publicURL",
+      "ssh_username": "centos",
+      "ssh_pty": "true",
+      "image_name": "packer-demo-{{timestamp}}",
+      "source_image": "01e6ecff-bbcb-4f6e-8b5c-98be62ed995f",
+      "flavor": "8e00bc89-f2b0-40d3-96d4-05bd67f6e6bf",
+      "use_floating_ip": "true",
+      "floating_ip": "37.153.139.206"
+    },
+    {
+      "type": "amazon-ebs",
+      "region": "eu-west-1",
+      "source_ami": "{{user `aws_source_ami`}}",
+      "instance_type": "t1.micro",
+      "ssh_username": "ec2-user",
+      "ssh_pty": "true",
+      "ami_name": "packer-demo-{{timestamp}}",
+      "tags": {
+        "OS_Version": "CentOS",
+        "Release": "Latest"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "{{.Vars}} /bin/sh -x '{{.Path}}'",
+      "script": "scripts/cloud/puppet_install.sh"
+    }
+  ]
+}
