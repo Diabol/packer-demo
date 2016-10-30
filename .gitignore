@@ -1,3 +1,4 @@
 /builds
 /packer_cache
 SECRETS
+amazon-instance-secrets.json

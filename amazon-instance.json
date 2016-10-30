@@ -1,0 +1,46 @@
+{
+  "variables": {
+    "aws_source_ami": "ami-86307ef5",
+    "private_key": "",
+    "keypair": "",
+    "bundle_key_id": null,
+    "bundle_secret_key": null,
+    "s3_bucket": null,
+    "account_id": null,
+    "home": "{{ env `HOME` }}"
+  },
+  "builders": [
+    {
+      "type": "amazon-instance",
+      "region": "eu-west-1",
+      "account_id": "{{ user `account_id` }}",
+      "source_ami": "{{ user `aws_source_ami` }}",
+      "instance_type": "m3.medium",
+      "ssh_username": "ubuntu",
+      "ssh_keypair_name": "{{ user `keypair` }}",
+      "ssh_private_key_file": "{{ user `private_key` }}",
+      "ssh_pty": "true",
+      "ami_name": "packer-demo-{{timestamp}}",
+      "s3_bucket": "{{ user `s3_bucket` }}",
+      "x509_cert_path": "{{ user `home` }}/.aws/certificate.pem",
+      "x509_key_path": "{{ user `home` }}/.aws/private-key.pem",
+      "bundle_destination": "/mnt/tmp/",
+      "bundle_upload_command": "sudo -i -n ec2-upload-bundle -b {{.BucketName}} -m {{.ManifestPath}} -a {{ user `bundle_key_id` }} -s {{ user `bundle_secret_key` }} -d {{.BundleDirectory}} --batch --retry ",
+      "tags": {
+        "OS_Version": "Ubuntu 14.04 LTS",
+        "Release": "14.04"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "pause_before": "5s",
+      "inline": [
+        "sudo mkdir -p /mnt/tmp",
+        "sudo apt-get update",
+        "sudo apt-get install -y ec2-ami-tools"
+      ]
+    }
+  ]
+}
