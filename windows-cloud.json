@@ -1,0 +1,18 @@
+{
+  "builders": [{
+    "type": "amazon-ebs",
+    "region": "eu-west-1",
+    "instance_type": "m3.medium",
+    "source_ami": "ami-d593bba6",
+    "ami_name": "windows-ami-{{timestamp}}",
+    "user_data_file": "userdata/windows-aws.txt",
+    "communicator": "winrm",
+    "winrm_username": "Administrator"
+  }],
+  "provisioners": [{
+    "type": "powershell",
+    "inline": [
+      "dir c:\\"
+    ]
+  }]
+}
