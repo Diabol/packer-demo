@@ -1,10 +1,35 @@
 {
-  "builders": [{
+
+  "variables":
+  {
+    "gcp_project": "packer-test-141600",
+    "startup_script": "winrm quickconfig -quiet & net user /add packer & net localgroup administrators packer /add & netsh advfirewall firewall set rule name=\"Windows Remote Management (HTTP-In)\" profile=public new remoteip=any & winrm set winrm/config/service @{AllowUnencrypted=\"true\"} & winrm set winrm/config/service/auth @{Basic=\"true\"} & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"Set-ExecutionPolicy -ExecutionPolicy bypass -Force\""
+  },
+  "builders": [
+  {
+    "type": "googlecompute",
+    "project_id": "{{ user `gcp_project`}}",
+    "image_name": "packer-demo-{{timestamp}}",
+    "disk_size": "50",
+    "disk_type": "pd-ssd",
+    "machine_type": "n1-standard-1",
+    "source_image": "windows-server-2016-dc-v20170227",
+    "zone": "europe-west1-b",
+    "communicator": "winrm",
+    "winrm_username": "packer",
+    "winrm_insecure": true,
+    "winrm_timeout": "300m",
+    "winrm_use_ssl": true,
+    "metadata": {
+      "windows-startup-script-cmd": "{{user `startup_script`}}"
+    }
+  },
+  {
     "type": "amazon-ebs",
     "region": "eu-west-1",
     "instance_type": "m3.medium",
     "source_ami": "ami-d593bba6",
-    "ami_name": "windows-ami-{{timestamp}}",
+    "ami_name": "packer-demo-{{timestamp}}",
     "user_data_file": "userdata/windows-aws.txt",
     "communicator": "winrm",
     "winrm_username": "Administrator"
