@@ -1,0 +1,48 @@
+{
+
+  "variables":
+  {
+    "gcp_project": "packer-test-141600"
+  },
+  "builders": [
+  {
+    "type": "googlecompute",
+    "project_id": "{{ user `gcp_project`}}",
+    "image_name": "packer-demo-{{timestamp}}",
+    "machine_type": "n1-standard-1",
+    "source_image": "windows-server-2016-dc-v20170227",
+    "zone": "europe-west1-b",
+    "disk_size": "50",
+    "communicator": "winrm",
+    "winrm_username": "packer",
+    "winrm_insecure": true,
+    "winrm_use_ssl": true,
+    "metadata": {
+      "windows-startup-script-cmd": "winrm quickconfig -quiet & net user /add packer & net localgroup administrators packer /add & winrm set winrm/config/service/auth @{Basic=\"true\"}"
+    }
+  },
+  {
+    "type": "amazon-ebs",
+    "region": "eu-west-1",
+    "instance_type": "m3.medium",
+    "source_ami": "ami-0983b56f",
+    "ami_name": "packer-demo-{{timestamp}}",
+    "user_data_file": "userdata/windows-aws.txt",
+    "communicator": "winrm",
+    "winrm_username": "Administrator"
+  }],
+  "provisioners": [{
+    "type": "powershell",
+    "inline": [
+      "dir c:\\"
+    ]
+  },
+  {
+      "type":  "ansible",
+      "playbook_file": "./win-playbook.yml",
+      "extra_arguments": [
+        "--connection", "packer", "-vvv",
+        "--extra-vars", "ansible_shell_type=powershell ansible_shell_executable=None"
+      ]
+  }]
+}
